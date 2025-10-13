@@ -12,15 +12,31 @@ import kotlinx.coroutines.withContext
 
 class MainViewModel: ViewModel() {
     var resultState by mutableStateOf("")
+    private set
+
+    var isLoading by mutableStateOf(false)
+    private set
+
 
     fun fetchData(){
         viewModelScope.launch {
-            val result = withContext(Dispatchers.IO){
-                delay(5000)
-                "Respuesta de la API"
+            try {
+                isLoading = true
+                callAPI()
+            }catch (e: Exception){
+                println("Error: ${e.message}")
+            }finally {
+                isLoading = false
             }
-            resultState = result
         }
+    }
+
+   private suspend fun callAPI(){
+        val result = withContext(Dispatchers.IO){
+            delay(5000)
+            "Respuesta de la API"
+        }
+        resultState = result
     }
 
     fun blockApp(){

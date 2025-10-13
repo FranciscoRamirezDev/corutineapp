@@ -9,13 +9,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,14 +35,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val viewModel : MainViewModel by viewModels()
+       // val viewModel : MainViewModel by viewModels()
+        val viewModel : ItemsViewModel by viewModels()
         setContent {
             CorutineappTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Content(viewModel)
+                   // Content(viewModel)
+                    ItemsViews(viewModel)
                 }
             }
         }
@@ -51,7 +58,11 @@ fun Content(viewModel: MainViewModel){
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ButtonColor()
-        Text(viewModel.resultState)
+        if (viewModel.isLoading){
+            CircularProgressIndicator()
+        }else{
+           Text(viewModel.resultState)
+        }
         Button(
             onClick = { viewModel.fetchData()}
         ) {
@@ -71,4 +82,31 @@ fun ButtonColor(){
     ) {
         Text("Cambiar color")
     }
+}
+
+@Composable
+fun ItemsViews(viewModel: ItemsViewModel){
+    val itemsList = viewModel.itemsList
+
+    // forma de declarar una variable de tipo flow
+    val list by  viewModel.list.collectAsState()
+
+    // efecto para cargar los al iniciar para corutinas
+    LaunchedEffect(Unit){
+        viewModel.fetchData()
+    }
+
+    Column{
+        if(viewModel.isLoading){
+            CircularProgressIndicator()
+        }else{
+            LazyColumn{
+                items(list){
+                    item ->
+                    Text(item.name)
+                }
+            }
+        }
+    }
+
 }
