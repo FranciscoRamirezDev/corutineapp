@@ -18,7 +18,7 @@ class ItemsViewModel: ViewModel() {
     private val _list: MutableStateFlow<List<ItemsModel>> = MutableStateFlow(emptyList())
     val list = _list
 
-
+    //mutable list (listas)
     var itemsList = mutableStateListOf(ItemsModel())
         private set
 
@@ -44,6 +44,7 @@ class ItemsViewModel: ViewModel() {
         }
     }
 
+    //suspend fun (corutinas)
     private suspend fun callAPI(){
         val result = withContext(Dispatchers.IO){
             delay(5000)
